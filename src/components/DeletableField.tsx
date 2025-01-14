@@ -7,6 +7,7 @@ interface DeletableFieldProps {
   onDelete: () => void;
   placeholder?: string;
   icon?: React.ReactNode;
+  isName?: boolean;
 }
 
 const DeletableField: React.FC<DeletableFieldProps> = ({
@@ -14,7 +15,8 @@ const DeletableField: React.FC<DeletableFieldProps> = ({
   onChange,
   onDelete,
   placeholder,
-  icon
+  icon,
+  isName = false
 }) => {
   return (
     <div className="group flex items-center space-x-2 relative">
@@ -24,6 +26,7 @@ const DeletableField: React.FC<DeletableFieldProps> = ({
           value={value}
           onChange={onChange}
           placeholder={placeholder}
+          isName={isName}
         />
       </div>
       <button

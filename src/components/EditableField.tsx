@@ -9,6 +9,7 @@ interface EditableFieldProps {
   index?: number;
   field?: string;
   isEditing?: boolean;
+  isName?: boolean;
 }
 
 const EditableField: React.FC<EditableFieldProps> = ({
@@ -19,7 +20,8 @@ const EditableField: React.FC<EditableFieldProps> = ({
   section = '',
   index = 0,
   field = '',
-  isEditing = false
+  isEditing = false,
+  isName = false
 }) => {
   const [editing, setEditing] = useState(isEditing);
   const [currentValue, setCurrentValue] = useState(value);
@@ -56,7 +58,7 @@ const EditableField: React.FC<EditableFieldProps> = ({
     return (
       <div 
         onClick={() => setEditing(true)}
-        className="w-full cursor-text"
+        className={`w-full cursor-text ${isName ? 'text-4xl font-extrabold text-gray-900 tracking-tight' : ''}`}
       >
         {value || placeholder}
       </div>
@@ -72,7 +74,7 @@ const EditableField: React.FC<EditableFieldProps> = ({
       onKeyDown={handleKeyDown}
       placeholder={placeholder}
       autoFocus
-      className="w-full px-1 py-0.5 border-b border-gray-300 focus:outline-none focus:border-blue-500"
+      className={`w-full px-1 py-0.5 border-b border-gray-300 focus:outline-none focus:border-blue-500 ${isName ? 'text-4xl font-extrabold text-gray-900 tracking-tight' : ''}`}
     />
   );
 };

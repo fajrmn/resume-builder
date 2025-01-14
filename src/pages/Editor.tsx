@@ -9,6 +9,7 @@ import DraggableItem from '../components/DraggableItem';
 import EditableField from '../components/EditableField';
 import DeletableField from '../components/DeletableField';
 import DeletableBullet from '../components/DeletableBullet';
+import IconDropdown from '../components/IconDropdown';
 import type { ResumeData } from '../types';
 
 interface EditorProps {
@@ -71,6 +72,30 @@ const Editor: React.FC<EditorProps> = ({ templateType, onDataChange, initialData
         i === index ? { ...item, [field]: value } : item
       ),
     };
+    setResumeData(newData);
+    onDataChange(newData);
+  };
+
+  const handlePersonalInfoChange = (field: string, value: string) => {
+    const newData = {
+      ...resumeData,
+      personalInfo: {
+        ...resumeData.personalInfo,
+        [field]: value,
+      },
+    };
+    setResumeData(newData);
+    onDataChange(newData);
+  };
+
+  const handlePersonalInfoDelete = (field: string) => {
+    const { [field]: removedField, [`${field}Icon`]: removedIcon, ...remainingPersonalInfo } = resumeData.personalInfo;
+    
+    const newData = {
+      ...resumeData,
+      personalInfo: remainingPersonalInfo,
+    };
+    
     setResumeData(newData);
     onDataChange(newData);
   };
@@ -280,49 +305,107 @@ const Editor: React.FC<EditorProps> = ({ templateType, onDataChange, initialData
     onDataChange(newResumeData);
   };
 
-  const renderPersonalInfo = () => {
-    const contactIcons = {
-      email: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
-      ),
-      phone: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-        </svg>
-      ),
-      linkedin: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-        </svg>
-      ),
-      github: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-        </svg>
-      )
+  const availableContactFields = [
+    'email',
+    'phone',
+    'linkedin',
+    'github',
+    'website'
+  ];
+
+  const handleAddContactField = (field: string) => {
+    // Prevent adding if the field already exists
+    if (resumeData.personalInfo[field]) return;
+
+    const newData = {
+      ...resumeData,
+      personalInfo: {
+        ...resumeData.personalInfo,
+        [field]: '', // Add empty field
+        [`${field}Icon`]: field as ContactIconType // Add default icon
+      }
     };
+
+    setResumeData(newData);
+    onDataChange(newData);
+  };
+
+  const renderPersonalInfo = () => {
+    // Get all fields except 'name' and icon fields
+    const contactFields = Object.keys(resumeData.personalInfo)
+      .filter(field => 
+        field !== 'name' && 
+        !field.endsWith('Icon') && 
+        resumeData.personalInfo[field] !== undefined
+      );
+
+    // Determine which fields can be added
+    const addableFields = availableContactFields.filter(
+      field => !resumeData.personalInfo[field]
+    );
 
     return (
       <div className="space-y-4">
         <DeletableField
           value={resumeData.personalInfo.name}
-          onChange={(value) => handleInlineEdit('personalInfo', 0, 'name', value)}
-          onDelete={() => handleDeletePersonalInfo('name')}
+          onChange={(value) => handlePersonalInfoChange('name', value)}
+          onDelete={() => handlePersonalInfoChange('name', '')}
           placeholder="Your Name"
+          isName={true}
         />
-        <div className="grid grid-cols-2 gap-4">
-          {(Object.keys(contactIcons) as Array<keyof typeof contactIcons>).map((field) => (
-            <DeletableField
-              key={field}
-              value={resumeData.personalInfo[field]}
-              onChange={(value) => handleInlineEdit('personalInfo', 0, field, value)}
-              onDelete={() => handleDeletePersonalInfo(field)}
-              placeholder={`Your ${field}`}
-              icon={contactIcons[field]}
-            />
+        <div className="grid grid-cols-3 gap-4">
+          {contactFields.map((field) => (
+            <div key={field} className="flex items-center space-x-2">
+              <IconDropdown 
+                currentIcon={resumeData.personalInfo[`${field}Icon`] || 'none'}
+                onChange={(icon) => {
+                  if (icon === 'none') {
+                    // Remove the entire field if 'none' is selected
+                    handlePersonalInfoDelete(field);
+                  } else {
+                    handlePersonalInfoChange(`${field}Icon`, icon);
+                  }
+                }}
+              />
+              <DeletableField
+                value={resumeData.personalInfo[field]}
+                onChange={(value) => handlePersonalInfoChange(field, value)}
+                onDelete={() => handlePersonalInfoDelete(field)}
+                placeholder={`Your ${field}`}
+              />
+            </div>
           ))}
+          
+          {addableFields.length > 0 && (
+            <div className="relative group">
+              <button 
+                onClick={() => {
+                  const fieldToAdd = addableFields[0];
+                  handleAddContactField(fieldToAdd);
+                }}
+                className="flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200 opacity-50 group-hover:opacity-100"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Add {addableFields[0]}
+              </button>
+              
+              {addableFields.length > 1 && (
+                <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  {addableFields.map((field) => (
+                    <button
+                      key={field}
+                      onClick={() => handleAddContactField(field)}
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                    >
+                      Add {field}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     );

@@ -29,12 +29,11 @@ export interface Project {
   accomplishments: string[];
 }
 
+export type ContactIconType = 'phone' | 'email' | 'contact' | 'linkedin' | 'github' | 'website' | 'none';
+
 export interface PersonalInfo {
   name: string;
-  email: string;
-  phone: string;
-  linkedin: string;
-  github: string;
+  [key: string]: string;
 }
 
 export interface ResumeData {

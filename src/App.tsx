@@ -11,9 +11,13 @@ const initialResumeData: ResumeData = {
   personalInfo: {
     name: 'Your Name',
     email: 'youremail@example.com',
+    emailIcon: 'email',
     phone: '(123) 456-7890',
+    phoneIcon: 'phone',
     linkedin: 'linkedin.com/in/username',
-    github: 'github.com/username'
+    linkedinIcon: 'linkedin',
+    github: 'github.com/username',
+    githubIcon: 'github'
   },
   education: [{
     id: generateId(),
