@@ -111,3 +111,26 @@ button:active {
 .section-header:hover::after {
   width: 100%;
 }
+
+/* Resume content styles */
+.resume-content {
+  background: white;
+  position: relative;
+  break-inside: avoid;
+}
+
+.resume-content.downloading {
+  overflow: visible !important;
+  display: block !important;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  transform: none !important;
+}
+
+/* Ensure proper rendering during download */
+@media print, (min-resolution: 200dpi) {
+  .resume-content {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

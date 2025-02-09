@@ -1,0 +1,10 @@
+1. Follow current coding best practices.
+2. Write clear, descriptive code comments.
+3. Use meaningful variable names that clearly indicate their purpose.
+4. Document your code with concise, easy-to-understand explanations.
+5. Implement comprehensive error handling with user-friendly messages.
+6. Design an intuitive and modern user interface.
+7. Optimize code for performance and fast loading times.
+8. Edit code files sequentially, not simultaneously.
+9. When replacing code, clearly specify both the original and new code.
+10. Use CDN for dependencies, frameworks, and libraries unless specified otherwise.

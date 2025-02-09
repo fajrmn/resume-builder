@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import DateRangePicker from '../components/DateRangePicker';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
@@ -53,27 +52,37 @@ const Editor: React.FC<EditorProps> = ({ templateType, onDataChange, initialData
   };
 
   const handleInlineEdit = (section: string, index: number, field: string, value: string) => {
-    if (section === 'personalInfo') {
-      const newData = {
-        ...resumeData,
-        personalInfo: {
-          ...resumeData.personalInfo,
-          [field]: value,
-        },
-      };
-      setResumeData(newData);
-      onDataChange(newData);
-      return;
+    const updatedData = { ...resumeData };
+    
+    switch (section) {
+      case 'education':
+        updatedData.education[index] = {
+          ...updatedData.education[index],
+          [field]: value
+        };
+        break;
+      case 'experience':
+        updatedData.experience[index] = {
+          ...updatedData.experience[index],
+          [field]: value
+        };
+        break;
+      case 'projects':
+        updatedData.projects[index] = {
+          ...updatedData.projects[index],
+          [field]: value
+        };
+        break;
+      case 'additionalItems':
+        updatedData.additionalItems[index] = {
+          ...updatedData.additionalItems[index],
+          [field]: value
+        };
+        break;
     }
-
-    const newData = {
-      ...resumeData,
-      [section]: resumeData[section as keyof ResumeData].map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
-      ),
-    };
-    setResumeData(newData);
-    onDataChange(newData);
+    
+    setResumeData(updatedData);
+    onDataChange(updatedData);
   };
 
   const handlePersonalInfoChange = (field: string, value: string) => {
@@ -107,22 +116,20 @@ const Editor: React.FC<EditorProps> = ({ templateType, onDataChange, initialData
         institution: '',
         degree: '',
         location: '',
-        startDate: '',
-        endDate: undefined,
+        date: '',
         current: false,
       } : section === 'experience' ? {
         position: '',
         company: '',
         location: '',
-        startDate: '',
-        endDate: undefined,
+        date: '',
         current: false,
         accomplishments: [''],
       } : {
         title: '',
         skills: '',
-        startDate: '',
-        endDate: undefined,
+        location: '',
+        date: '',
         current: false,
         accomplishments: [''],
       }),
@@ -165,28 +172,6 @@ const Editor: React.FC<EditorProps> = ({ templateType, onDataChange, initialData
           accomplishments: item.accomplishments.map((acc, j) => 
             j === accIndex ? value : acc
           ),
-        } : item
-      ),
-    };
-    setResumeData(newData);
-    onDataChange(newData);
-  };
-
-  const handleDateRangeChange = (
-    section: 'education' | 'experience' | 'projects', 
-    index: number, 
-    startDate: string | null, 
-    endDate: string | null, 
-    current: boolean
-  ) => {
-    const newData = {
-      ...resumeData,
-      [section]: resumeData[section].map((item, i) => 
-        i === index ? { 
-          ...item, 
-          startDate: startDate || '', 
-          endDate: endDate || undefined,
-          current 
         } : item
       ),
     };
@@ -437,8 +422,8 @@ const Editor: React.FC<EditorProps> = ({ templateType, onDataChange, initialData
   };
 
   return (
-    <div className="min-h-screen p-4 bg-white">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-gray-50">
+      <div className="resume-content w-full max-w-3xl mx-auto bg-white shadow-sm my-8 p-8" style={{ position: 'static', overflow: 'visible' }}>
         {/* Personal Information */}
         <div className="mb-12 space-y-4">
           {renderPersonalInfo()}
@@ -508,13 +493,13 @@ const Editor: React.FC<EditorProps> = ({ templateType, onDataChange, initialData
                           />
                         </div>
                         <div className="text-gray-500">
-                          <DateRangePicker
-                            startDate={edu.startDate}
-                            endDate={edu.endDate}
-                            current={edu.current}
-                            onChange={(startDate, endDate, current) => 
-                              handleDateRangeChange('education', index, startDate, endDate, current)
-                            }
+                          <EditableField
+                            value={edu.date}
+                            section="education"
+                            index={index}
+                            field="date"
+                            placeholder="Date Range (e.g. 2020 - 2024)"
+                            onEdit={handleInlineEdit}
                           />
                         </div>
                       </div>
@@ -590,13 +575,13 @@ const Editor: React.FC<EditorProps> = ({ templateType, onDataChange, initialData
                           />
                         </div>
                         <div className="text-gray-500">
-                          <DateRangePicker
-                            startDate={exp.startDate}
-                            endDate={exp.endDate}
-                            current={exp.current}
-                            onChange={(startDate, endDate, current) => 
-                              handleDateRangeChange('experience', index, startDate, endDate, current)
-                            }
+                          <EditableField
+                            value={exp.date}
+                            section="experience"
+                            index={index}
+                            field="date"
+                            placeholder="Date Range (e.g. 2020 - 2024)"
+                            onEdit={handleInlineEdit}
                           />
                         </div>
                       </div>
@@ -662,14 +647,24 @@ const Editor: React.FC<EditorProps> = ({ templateType, onDataChange, initialData
                         </div>
                       </div>
                       <div className="text-right space-y-1">
+                        <div className="text-gray-600">
+                          <EditableField
+                            value={proj.location}
+                            section="projects"
+                            index={index}
+                            field="location"
+                            placeholder="Location"
+                            onEdit={handleInlineEdit}
+                          />
+                        </div>
                         <div className="text-gray-500">
-                          <DateRangePicker
-                            startDate={proj.startDate}
-                            endDate={proj.endDate}
-                            current={proj.current}
-                            onChange={(startDate, endDate, current) => 
-                              handleDateRangeChange('projects', index, startDate, endDate, current)
-                            }
+                          <EditableField
+                            value={proj.date}
+                            section="projects"
+                            index={index}
+                            field="date"
+                            placeholder="Date Range (e.g. 2020 - 2024)"
+                            onEdit={handleInlineEdit}
                           />
                         </div>
                       </div>

@@ -3,6 +3,20 @@ import Header from './components/Header';
 import Editor from './pages/Editor';
 import type { TemplateType } from './components/Header';
 import type { ResumeData } from './types';
+import { Font } from '@react-pdf/renderer';
+
+// Import Helvetica fonts
+import HelveticaRegular from '/fonts/Helvetica.ttf';
+import HelveticaBold from '/fonts/Helvetica-Bold.ttf';
+
+// Register fonts for PDF
+Font.register({
+  family: 'Helvetica',
+  fonts: [
+    { src: HelveticaRegular, fontWeight: 'normal' },
+    { src: HelveticaBold, fontWeight: 'bold' },
+  ],
+});
 
 // Utility function to generate unique IDs
 const generateId = () => Math.random().toString(36).substr(2, 9);
